@@ -1,0 +1,12 @@
+This mod adds new Buyback button when you died
+Buyback cost is 3/10 gold coins in prehardmode/hardmode
+After you bought back, next respawn will be twice longer
+Buyback has cooldown (5 minutes)
+
+I`m from Russia and I'm looking for people to join the development team in order to make cool terraria mods!
+My discord server - https://discord.gg/5Yc6vWwaGj
+Or discord nickname - boshanchik
+
+Я из России и я ищу людей в команду разработчиков для того чтобы делать крутые моды по террарии!
+Мой дискорд - https://discord.gg/5Yc6vWwaGj
+Или дискорд юзер - boshanchik

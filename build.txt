@@ -1,0 +1,6 @@
+displayName = BuyBacks like in Dota 2
+author = Boshan4ik, RPG512
+hideCode = true
+hideResources = false
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, Old\*
+version = 2.05
