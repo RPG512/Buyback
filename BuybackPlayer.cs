@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using Buyback.Content.Buffs;
 using Buyback.Content.Items;
 using Terraria;
 using Terraria.DataStructures;
@@ -19,6 +20,14 @@ namespace Buyback
 		{
 			if (BuybackCooldown > 0)
 				--BuybackCooldown;
+		}
+
+		public override void OnHurt(Player.HurtInfo info)
+		{
+			base.OnHurt(info);
+			if (info.DamageSource.SourcePlayerIndex != -1 ||
+			    info.DamageSource.SourcePlayerIndex != Main.player.ToList().IndexOf(Player))
+				Player.DelBuff(ModContent.BuffType<AegisRegenBuff>());
 		}
 
 		public override void Kill(
