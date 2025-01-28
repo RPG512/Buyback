@@ -34,10 +34,20 @@ namespace Buyback
 
 		public override void Update(GameTime gameTime)
 		{
-			if (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown <= 0)
+			if (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown > 0)
 			{
-				_text.SetText(BuybackCost.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
-				_text.TextColor = Color.Gold;
+				var time = TimeSpan.FromSeconds(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown / 60d);
+				_text.SetText(BuybackCooldown.Format($"{time.Minutes:0}:{time.Seconds:00}"));
+				_text.TextColor = Color.Red;
+				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldWatch]);
+				_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
+				_coinImage.Top.Set(_text.Top.Pixels, 0f);
+				_coinImage.Recalculate();
+			}
+			else if(!Main.LocalPlayer.CanAfford(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost))
+			{
+				_text.SetText(BuybackCooldown.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
+				_text.TextColor = Color.Red;
 				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldCoin]);
 				_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
 				_coinImage.Top.Set(_text.Top.Pixels, 0f);
@@ -45,10 +55,9 @@ namespace Buyback
 			}
 			else
 			{
-				var time = TimeSpan.FromSeconds(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown / 60d);
-				_text.SetText(BuybackCooldown.Format($"{time.Minutes:0}:{time.Seconds:00}"));
-				_text.TextColor = Color.Red;
-				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldWatch]);
+				_text.SetText(BuybackCost.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
+				_text.TextColor = Color.Gold;
+				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldCoin]);
 				_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
 				_coinImage.Top.Set(_text.Top.Pixels, 0f);
 				_coinImage.Recalculate();

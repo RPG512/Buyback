@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using Buyback.Content.Items;
 using Terraria;
 using Terraria.DataStructures;
@@ -10,7 +11,7 @@ namespace Buyback
 {
 	public class BuybackPlayer : ModPlayer
 	{
-		public int BuybackCost = 30000;
+		public int BuybackCost = Item.buyPrice(silver: 200);
 		public int BuybackCooldown = 1200;
 		public bool JustBoughtBack;
 
@@ -18,9 +19,6 @@ namespace Buyback
 		{
 			if (BuybackCooldown > 0)
 				--BuybackCooldown;
-			if (!Main.hardMode)
-				return;
-			BuybackCost = 100000;
 		}
 
 		public override void Kill(
@@ -31,6 +29,12 @@ namespace Buyback
 		{
 			if (Player.ConsumeItem(ModContent.ItemType<AegisOfTheImmortal>()))
 				return;
+
+			int netWorth = Player.inventory.Sum(i => i.value) +
+			               Player.bank.item.Sum(i => i.value) + Player.bank2.item.Sum(i => i.value) + 
+			               Player.bank3.item.Sum(i => i.value) + Player.bank4.item.Sum(i => i.value);
+
+			BuybackCost = Item.buyPrice(silver: 200 + netWorth / 13);
 
 			if (JustBoughtBack)
 			{

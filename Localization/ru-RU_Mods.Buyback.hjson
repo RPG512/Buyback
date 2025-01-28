@@ -24,3 +24,15 @@ UIStates: {
 		BuybackCooldown: ВЫКУПА НЕТ: {0}
 	}
 }
+
+Buffs: {
+	ReincarnationBuff: {
+		DisplayName: Reincarnation
+		Description: Эгида бессмертия.
+	}
+
+	AegisRegenBuff: {
+		DisplayName: Регенерация Эгиды
+		Description: Roshan забрал Aegis of the Immortal назад.
+	}
+}

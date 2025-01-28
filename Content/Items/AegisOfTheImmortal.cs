@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using Buyback.Content.Buffs;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
@@ -54,15 +54,7 @@ public class AegisOfTheImmortal : ModItem
 			player.dead = false;
 			player.statLife = player.statLifeMax2;
 
-			player.AddBuff(BuffID.Invisibility, 300);
-			player.AddBuff(BuffID.Frozen, 120);
-			player.AddBuff(BuffID.ObsidianSkin, 300);
-			player.AddImmuneTime(ImmunityCooldownID.Bosses, 300);
-			player.AddImmuneTime(ImmunityCooldownID.Lava, 300);
-			player.AddImmuneTime(ImmunityCooldownID.TileContactDamage, 300);
-			player.AddImmuneTime(ImmunityCooldownID.WrongBugNet, 300);
-			player.AddImmuneTime(ImmunityCooldownID.DD2OgreKnockback, 300);
-			player.AddImmuneTime(ImmunityCooldownID.General, 300);
+			player.AddBuff(ModContent.BuffType<ReincarnationBuff>(), 300);
 			SoundStyle soundStyle = new("Buyback/Content/Items/AegisOfTheImmortalReturn")
 			{
 				Type = SoundType.Sound,
@@ -75,8 +67,7 @@ public class AegisOfTheImmortal : ModItem
 		}
 		else
 		{
-			player.AddBuff(BuffID.Regeneration, 300);
-			player.AddBuff(BuffID.ManaRegeneration, 300);
+			player.AddBuff(ModContent.BuffType<AegisRegenBuff>(), 300);
 			SoundStyle soundStyle = new("Buyback/Content/Items/AegisOfTheImmortalExpire")
 			{
 				Type = SoundType.Sound,
@@ -90,7 +81,7 @@ public class AegisOfTheImmortal : ModItem
 
 	public override void UpdateInventory(Player player)
 	{
-		bool turnToAir = player.HeldItem.type == Item.type;
+		bool turnToAir = false;
 		for (var i = 0; i < player.inventory.Length; i++)
 		{
 			if(turnToAir && player.inventory[i].type == Item.type)
@@ -160,7 +151,7 @@ public class AegisOfTheImmortal : ModItem
 				Type = SoundType.Sound,
 				MaxInstances = 100,
 				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
-				Volume = 0.6f
+				Volume = 0.8f
 			};
 			SoundEngine.PlaySound(in soundStyle, Item.Center);
 		}

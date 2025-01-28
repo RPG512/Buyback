@@ -25,3 +25,15 @@ UIStates: {
 		BuybackCooldown: NO BUYBACK: {0}
 	}
 }
+
+Buffs: {
+	ReincarnationBuff: {
+		DisplayName: Reincarnation
+		Description: Aegis of the Immortal.
+	}
+
+	AegisRegenBuff: {
+		DisplayName: Aegis Regeneration
+		Description: Roshan took Aegis of the Immortal back.
+	}
+}
