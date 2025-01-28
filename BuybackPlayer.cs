@@ -27,7 +27,7 @@ namespace Buyback
 			base.OnHurt(info);
 			if (info.DamageSource.SourcePlayerIndex != -1 ||
 			    info.DamageSource.SourcePlayerIndex != Main.player.ToList().IndexOf(Player))
-				Player.DelBuff(ModContent.BuffType<AegisRegenBuff>());
+				Player.ClearBuff(ModContent.BuffType<AegisRegenBuff>());
 		}
 
 		public override void Kill(
@@ -39,11 +39,11 @@ namespace Buyback
 			if (Player.ConsumeItem(ModContent.ItemType<AegisOfTheImmortal>()))
 				return;
 
-			int netWorth = Player.inventory.Sum(i => i.value) +
-			               Player.bank.item.Sum(i => i.value) + Player.bank2.item.Sum(i => i.value) + 
-			               Player.bank3.item.Sum(i => i.value) + Player.bank4.item.Sum(i => i.value);
+			int netWorth = Player.inventory.Sum(i => i.value * i.stack) +
+			               Player.bank.item.Sum(i => i.value * i.stack) + Player.bank2.item.Sum(i => i.value * i.stack) + 
+			               Player.bank3.item.Sum(i => i.value * i.stack) + Player.bank4.item.Sum(i => i.value * i.stack);
 
-			BuybackCost = Item.buyPrice(silver: 200 + netWorth / 13);
+			BuybackCost = Item.buyPrice(silver: 200 + (netWorth / 13 / 100) - (netWorth / 13 / 100)%100);
 
 			if (JustBoughtBack)
 			{

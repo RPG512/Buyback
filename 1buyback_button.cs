@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.Chat;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
@@ -34,34 +35,30 @@ namespace Buyback
 
 		public override void Update(GameTime gameTime)
 		{
+			_parent.Left.Set(Main.screenWidth / 2f + 55f, 0.0f);
+			_parent.Top.Set(Main.screenHeight / 2f + 155f, 0.0f);
+
 			if (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown > 0)
 			{
 				var time = TimeSpan.FromSeconds(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown / 60d);
 				_text.SetText(BuybackCooldown.Format($"{time.Minutes:0}:{time.Seconds:00}"));
 				_text.TextColor = Color.Red;
-				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldWatch]);
-				_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
-				_coinImage.Top.Set(_text.Top.Pixels, 0f);
-				_coinImage.Recalculate();
+				_coinImage.SetImage(TextureAssets.Item[ItemID.None]);
 			}
 			else if(!Main.LocalPlayer.CanAfford(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost))
 			{
 				_text.SetText(BuybackCooldown.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
 				_text.TextColor = Color.Red;
-				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldCoin]);
-				_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
-				_coinImage.Top.Set(_text.Top.Pixels, 0f);
-				_coinImage.Recalculate();
+				_coinImage.Left.Set(205, 0f);
+				_coinImage.SetImage(TextureAssets.Item[ItemID.GoldCoin]);
 			}
 			else
 			{
 				_text.SetText(BuybackCost.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
 				_text.TextColor = Color.Gold;
-				_coinImage.SetImage(Terraria.GameContent.TextureAssets.Item[ItemID.GoldCoin]);
-				_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
-				_coinImage.Top.Set(_text.Top.Pixels, 0f);
-				_coinImage.Recalculate();
+				_coinImage.SetImage(TextureAssets.Item[ItemID.GoldCoin]);
 			}
+			_parent.Recalculate();
 		}
 
 		public override void OnInitialize()
@@ -69,26 +66,28 @@ namespace Buyback
 			FightElement = new FightElement();
 			Append(FightElement);
 
-			_parent.Height.Set(55f, 0.0f);
-			_parent.Width.Set(240f, 0.0f);
-			_parent.Left.Set(Main.screenWidth / 2f + 55f, 0.0f);
-			_parent.Top.Set(Main.screenHeight / 2f + 155f, 0.0f);
+			_parent.Height.Set(55f, 0f);
+			_parent.Width.Set(240f, 0f);
+			_parent.Left.Set(Main.screenWidth / 2f + 55f, 0f);
+			_parent.Top.Set(Main.screenHeight / 2f + 155f, 0f);
 			_parent.BackgroundColor = new Color(41, 49, 51, 200);
 			_parent.BorderColor = new Color(0, 0, 0, 0);
 
 			_parent.OnLeftClick += OnButtonClick;
 
 			_text = new UIText("Buyback: ");
-			_text.Width.Set(190f, 0.0f);
-			_text.Height.Set(55f, 0.0f);
+			_text.Width.Set(240f, 0f);
+			_text.Height.Set(55f, 0f);
 			_text.Top.Set(0.0f, 0.2f);
 			_text.TextColor = Color.Gold;
 
 			_parent.Append(_text);
 
-			_coinImage = new(Terraria.GameContent.TextureAssets.Item[ItemID.GoldCoin].Value);
-			_coinImage.Left.Set(_text.Left.Pixels + _text.Width.Pixels + 5f, 0f);
-			_coinImage.Top.Set(_text.Top.Pixels, 0f);
+			_coinImage = new(TextureAssets.Item[ItemID.GoldCoin]);
+			_coinImage.Height.Set(55f, 0f);
+			_coinImage.Left.Set(180, 0f);
+			_coinImage.Top.Set(0, 0.2f);
+			ModContent.Request<Texture2D>("Terraria/Images/Item_73"); //Images\\Item_73
 
 			_parent.Append(_coinImage);
 
