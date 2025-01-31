@@ -19,7 +19,7 @@ Items: {
 
 UIStates: {
 	FightState: {
-		JustBoughtBackMessage: выкупается в игру!
+		JustBoughtBackMessage: <{0}> выкупается в игру!
 		BuybackCost: ВЫКУП: {0}
 		BuybackCooldown: ВЫКУПА НЕТ: {0}
 	}
@@ -34,5 +34,22 @@ Buffs: {
 	AegisRegenBuff: {
 		DisplayName: Регенерация Эгиды
 		Description: Roshan забрал Aegis of the Immortal назад.
+	}
+}
+
+Configs: {
+	BuybackModConfig: {
+		DisplayName: Конфигурация Buyback Сервер
+		Headers.Balance: Баланс
+
+		NetWorthDivider: {
+			Label: Делитель NetWorth
+			Tooltip:
+				'''
+				Определяет цену выкупа.
+				Рассчитывается по формуле: 200 + NetWorth / 13 / Делитель.
+				Итоговая сумма в серебряных монетах.
+				'''
+		}
 	}
 }

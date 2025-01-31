@@ -143,18 +143,17 @@ public class AegisOfTheImmortal : ModItem
 
 	public override void Update(ref float gravity, ref float maxFallSpeed)
 	{
-		if (--Timer <= 0)
+		if (--Timer > 0)
+			return;
+		SoundStyle soundStyle = new("Buyback/Content/Items/AegisOfTheImmortalTimer")
 		{
-			Item.TurnToAir();
-			SoundStyle soundStyle = new("Buyback/Content/Items/AegisOfTheImmortalTimer")
-			{
-				Type = SoundType.Sound,
-				MaxInstances = 100,
-				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
-				Volume = 0.8f
-			};
-			SoundEngine.PlaySound(in soundStyle, Item.Center);
-		}
+			Type = SoundType.Sound,
+			MaxInstances = 100,
+			SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
+			Volume = 0.8f
+		};
+		SoundEngine.PlaySound(in soundStyle, Item.Center);
+		Item.TurnToAir();
 	}
 
 	public override void ModifyTooltips(List<TooltipLine> tooltips)

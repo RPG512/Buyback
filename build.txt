@@ -1,4 +1,4 @@
-displayName = BuyBacks like in Dota 2
+displayName = BuyBacks & Aegis like in Dota 2
 author = Boshan4ik, RPG512
 hideCode = true
 hideResources = false

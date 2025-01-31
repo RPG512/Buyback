@@ -12,7 +12,6 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.UI.Chat;
 
-#nullable disable
 namespace Buyback
 {
 	internal class FightState : UIState, ILocalizedModType, ILoadable
@@ -83,12 +82,11 @@ namespace Buyback
 
 			_parent.Append(_text);
 
-			_coinImage = new(TextureAssets.Item[ItemID.GoldCoin]);
+			_coinImage = new(ModContent.Request<Texture2D>("Terraria/Images/Item_73")); // Images\\Item_73 - GoldCoin
 			_coinImage.Height.Set(55f, 0f);
 			_coinImage.Left.Set(180, 0f);
 			_coinImage.Top.Set(0, 0.2f);
-			ModContent.Request<Texture2D>("Terraria/Images/Item_73"); //Images\\Item_73
-
+			
 			_parent.Append(_coinImage);
 
 			Append(_parent);
@@ -99,7 +97,10 @@ namespace Buyback
 			if (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown > 0 ||
 			    !Main.LocalPlayer.CanAfford(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost) ||
 			    !Main.LocalPlayer.dead)
+			{
+				//Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown = 1;// Скип для тестов
 				return;
+			}
 
 			Main.LocalPlayer.BuyItem(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost);
 			Main.LocalPlayer.respawnTimer = 1;
@@ -108,16 +109,30 @@ namespace Buyback
 			Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown = 18005;
 			Main.LocalPlayer.GetModPlayer<BuybackPlayer>().JustBoughtBack = true;
 
-			SoundStyle soundStyle = new("Buyback/buyback")
+			if(Main.netMode == NetmodeID.SinglePlayer)
 			{
-				Type = SoundType.Sound,
-				MaxInstances = 100,
-				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
-				Volume = 0.6f,
-				
-			};
-			SoundEngine.PlaySound(in soundStyle, Main.LocalPlayer.PotionOfReturnHomePosition);
-			ChatHelper.SendChatMessageFromClient(new(JustBoughtBackMessage.Value));
+				SoundStyle soundStyle = new("Buyback/buyback")
+				{
+					Type = SoundType.Sound,
+					MaxInstances = 100,
+					SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
+					Volume = 1.4f
+				};
+				SoundEngine.PlaySound(in soundStyle, Main.LocalPlayer.GetModPlayer<BuybackPlayer>().RespawnPosition);
+				Main.NewText(JustBoughtBackMessage.ToNetworkText(Main.LocalPlayer.name), Color.Gold);
+			}
+			else
+			{
+				ModPacket packet = Mod.GetPacket();
+				packet.Write((byte)0);
+				packet.Send();
+				foreach (var p in Main.player)
+					if (p.active)
+						p.GetModPlayer<BuybackPlayer>().BuybackPlaySound = true;
+				packet = Mod.GetPacket();
+				packet.Write((byte)1);
+				packet.Send();
+			}
 		}
 
 		public void Load(Mod mod)

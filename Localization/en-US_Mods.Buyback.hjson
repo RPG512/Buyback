@@ -20,7 +20,7 @@ Items: {
 
 UIStates: {
 	FightState: {
-		JustBoughtBackMessage: just bought back into the game!
+		JustBoughtBackMessage: <{0}> just bought back into the game!
 		BuybackCost: BUYBACK: {0}
 		BuybackCooldown: NO BUYBACK: {0}
 	}
@@ -35,5 +35,22 @@ Buffs: {
 	AegisRegenBuff: {
 		DisplayName: Aegis Regeneration
 		Description: Roshan took Aegis of the Immortal back.
+	}
+}
+
+Configs: {
+	BuybackModConfig: {
+		DisplayName: Buyback Config Server
+		Headers.Balance: Balance
+
+		NetWorthDivider: {
+			Label: NetWorth Divider
+			Tooltip:
+				'''
+				Determines the buyback price.
+				It is calculated using the formula: 200 + Net Worth / 13 / divider.
+				The total amount in silver coins.
+				'''
+		}
 	}
 }

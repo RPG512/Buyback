@@ -17,7 +17,7 @@ namespace Buyback
 
 		public override void Load()
 		{
-			FightState = new FightState();
+			FightState = new FightState{Mod = Mod};
 			FightState.Activate();
 			_fightState = new UserInterface();
 			_fightState.SetState(FightState);

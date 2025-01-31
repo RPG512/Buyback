@@ -1,12 +1,19 @@
-This mod adds new Buyback button when you died
-Buyback cost is 3/10 gold coins in prehardmode/hardmode
-After you bought back, next respawn will be twice longer
-Buyback has cooldown (5 minutes)
+This mod adds a new buyback button when you die.
+The purchase price depends on the value of your arsenal and the available money (NetWorth).
+After you redeem, the next rebirth will be twice as long.
+The recovery time after the purchase is 5 minutes.
 
-I`m from Russia and I'm looking for people to join the development team in order to make cool terraria mods!
-My discord server - https://discord.gg/5Yc6vWwaGj
-Or discord nickname - boshanchik
+Этот мод добавляет новую кнопку выкупа, когда вы умираете.
+Стоимость выкупа зависит от стоимости вашего арсенала и имеющихся денег (NetWorth).
+После того, как вы выкупитесь, следующее возрождение будет в два раза длиннее.
+Время восстановления после выкупа составляет 5 минут.
 
-Я из России и я ищу людей в команду разработчиков для того чтобы делать крутые моды по террарии!
-Мой дискорд - https://discord.gg/5Yc6vWwaGj
-Или дискорд юзер - boshanchik
+I'm from Russia and I am looking for people who could join the development team to create Terraria mods!
+The rpg512 server in discord - https://discord.gg/J4thbVg
+Or a nickname in discord - boshanchik, rpg512
+
+Я из России и ищу людей, которые могли бы присоединиться к команде разработчиков для создания модов Terraria!
+Сервер rpg512 в discord - https://discord.gg/J4thbVg
+Или ник в discord - boshanchik, rpg512
+
+P.S. Йоу звук бб чёт не у всех играет. Круто, если сможете помочь.
