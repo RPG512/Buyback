@@ -5,6 +5,7 @@ using Buyback.Content.Buffs;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.GameContent.Creative;
 using Terraria.ID;
@@ -18,12 +19,15 @@ namespace Buyback.Content.Items;
 public class AegisOfTheImmortal : ModItem
 {
 	public int Timer = 18000;
+	private bool _isStolen;
 	public static LocalizedText LifeTime { get; private set; }
+	public static LocalizedText Stolen { get; private set; }
 
 	public override void SetStaticDefaults()
 	{
 		Item.ResearchUnlockCount = 100;
 		LifeTime = this.GetLocalization(nameof(LifeTime));
+		Stolen = this.GetLocalization(nameof(Stolen));
 	}
 
 	public override void SetDefaults()
@@ -40,6 +44,12 @@ public class AegisOfTheImmortal : ModItem
 	public override void OnCreated(ItemCreationContext context)
 	{
 		Timer = 18000;
+	}
+	public override void OnSpawn(IEntitySource source)
+	{
+		if (source == Terraria.Entity.GetSource_None()){
+			Timer = -1;
+		}
 	}
 
 	public override bool ConsumeItem(Player player)
@@ -81,6 +91,24 @@ public class AegisOfTheImmortal : ModItem
 
 	public override void UpdateInventory(Player player)
 	{
+		if (Timer < 0)
+		{
+			SoundEngine.PlaySound(in Buyback.BuybackSound);
+			Item.TurnToAir();
+			return;
+		}
+		if (!_isStolen)
+			switch(Main.netMode)
+			{
+				case 0:
+					Main.NewText(Stolen.ToNetworkText(player.name), Color.Gold);
+					break;
+				case 1:
+					ChatHelper.BroadcastChatMessage(Stolen.ToNetworkText(player.name), Color.Gold);
+					break;
+			} 
+		_isStolen = true;
+
 		bool turnToAir = false;
 		for (var i = 0; i < player.inventory.Length; i++)
 		{
@@ -143,6 +171,16 @@ public class AegisOfTheImmortal : ModItem
 
 	public override void Update(ref float gravity, ref float maxFallSpeed)
 	{
+		if (Timer < 0)
+		{
+			if (Item.beingGrabbed)
+				return;
+			SoundEngine.PlaySound(in Buyback.BuybackSound);
+			Item.TurnToAir();
+			return;
+		}
+		if (_isStolen)
+			Item.TurnToAir();
 		if (--Timer > 0)
 			return;
 		SoundStyle soundStyle = new("Buyback/Content/Items/AegisOfTheImmortalTimer")
@@ -183,23 +221,24 @@ public class AegisOfTheImmortal : ModItem
 	public override void SaveData(TagCompound tag)
 	{
 		tag["Timer"] = Timer;
+		tag["is-stolen"] = _isStolen;
 	}
 
 	public override void LoadData(TagCompound tag)
 	{
-		if (tag.ContainsKey("Timer"))
-		{
-			Timer = tag.GetInt("Timer");
-		}
+		Timer = tag.GetInt("Timer");
+		_isStolen = tag.GetBool("is-stolen");
 	}
 
 	public override void NetSend(BinaryWriter writer)
 	{
 		writer.Write(Timer);
+		writer.Write(_isStolen);
 	}
 
 	public override void NetReceive(BinaryReader reader)
 	{
 		Timer = reader.ReadInt32();
+		_isStolen = reader.ReadBoolean();
 	}
 }

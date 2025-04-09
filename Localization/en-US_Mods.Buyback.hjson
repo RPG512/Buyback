@@ -5,16 +5,17 @@ Items: {
 			Brings you to life with full health and mana 5
 			seconds after you die, at the location
 			where you died.
-			�
+			 
 			Reincarnation must be used within 5 minutes
 			or Aegis of the Immortal disappears. If it
 			expires, it will heal you over 5 seconds (dispels
 			on damage).
-			�
+			 
 			The Immortal was said to own a shield that protected him from death itself.
 			'''
 		DisplayName: Aegis Of The Immortal
 		LifeTime: Time left: {0}.
+		Stolen: <{0}> snatched Aegis Of The Immortal!
 	}
 }
 
@@ -35,6 +36,11 @@ Buffs: {
 	AegisRegenBuff: {
 		DisplayName: Aegis Regeneration
 		Description: Roshan took Aegis of the Immortal back.
+	}
+
+	NoBuybackBuff: {
+		DisplayName: NO BUYBACK
+		Description: NO BUYBACK: {0}
 	}
 }
 

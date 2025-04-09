@@ -14,6 +14,7 @@ Items: {
 			'''
 		// DisplayName: Aegis Of The Immortal
 		LifeTime: Осталось времени: {0}.
+		Stolen: <{0}> подобрал Aegis Of The Immortal!
 	}
 }
 
@@ -27,13 +28,18 @@ UIStates: {
 
 Buffs: {
 	ReincarnationBuff: {
-		DisplayName: Reincarnation
+		DisplayName: Реинкарнация
 		Description: Эгида бессмертия.
 	}
 
 	AegisRegenBuff: {
 		DisplayName: Регенерация Эгиды
 		Description: Roshan забрал Aegis of the Immortal назад.
+	}
+
+	NoBuybackBuff: {
+		DisplayName: ВЫКУПА НЕТ
+		Description: ВЫКУПА НЕТ: {0}
 	}
 }
 

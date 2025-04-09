@@ -19,13 +19,11 @@ namespace Buyback
 		public long BuybackCost = Item.buyPrice(silver: 200);
 		public int BuybackCooldown = 1200;
 		public bool JustBoughtBack;
-		public bool BuybackPlaySound;
 
 		public Vector2 RespawnPosition
 		{
 			get
 			{
-
 				Player.FindSpawn();
 				return Player.SpawnX < 0
 					? new(Main.spawnTileX * 15.99912203687f, Main.spawnTileY * 15.99912203687f)
@@ -36,22 +34,14 @@ namespace Buyback
 		public override void PreUpdate()
 		{
 			if (BuybackCooldown > 0)
-				--BuybackCooldown;
-			if (!BuybackPlaySound)
-				return;
-			SoundStyle soundStyle = new("Buyback/buyback")
 			{
-				Type = SoundType.Sound,
-				MaxInstances = 100,
-				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
-				Volume = 0.8f
-			};
-			Player.GetModPlayer<BuybackPlayer>().PlaySound(in soundStyle);
-			BuybackPlaySound = false;
+				BuybackCooldown--;
+				Player.AddBuff(ModContent.BuffType<NoBuybackBuff>(), 6);
+				return;
+			}
+			if (!Player.CanAfford(BuybackCost))
+				Player.AddBuff(ModContent.BuffType<NoBuybackBuff>(), 6);
 		}
-
-		public SlotId PlaySound(in SoundStyle style, Vector2? position = null) =>
-			SoundEngine.PlaySound(in style, position);
 
 		public override void OnHurt(Player.HurtInfo info)
 		{
@@ -80,6 +70,9 @@ namespace Buyback
 
 			BuybackCost = 20000 + dividedNetWorth - dividedNetWorth % 100;
 
+			if (BuybackCost < 20000)
+				BuybackCost = long.MaxValue - 7;
+
 			if (JustBoughtBack)
 			{
 				Player.respawnTimer = 3600;
@@ -88,42 +81,47 @@ namespace Buyback
 			//else
 			//	Player.respawnTimer = 1800;
 		}
-
+		public override void OnRespawn()
+		{
+			if (JustBoughtBack)
+				//SoundEngine.PlaySound(in Buyback.BuybackSound);
+				Player.QuickSpawnItem(Terraria.Entity.GetSource_None(), ModContent.ItemType<AegisOfTheImmortal>());
+		}
 		public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
 		{
 			var packet = Mod.GetPacket();
 			packet.Write((byte)Player.whoAmI);
-			packet.Write((byte)BuybackCooldown);
-			packet.Write((byte)Player.respawnTimer);
+			packet.Write(BuybackCost);
+			packet.Write(BuybackCooldown);
+			packet.Write(Player.respawnTimer);
 			packet.Write(JustBoughtBack);
-			packet.Write(BuybackPlaySound);
 		}
 
 		public void ReceivePlayerSync(BinaryReader reader)
 		{
-			BuybackCooldown = reader.ReadByte();
-			Player.respawnTimer = reader.ReadByte();
+			BuybackCost = reader.ReadInt64();
+			BuybackCooldown = reader.ReadInt32();
+			Player.respawnTimer = reader.ReadInt32();
 			JustBoughtBack = reader.ReadBoolean();
-			BuybackPlaySound = reader.ReadBoolean();
 		}
 
 		public override void CopyClientState(ModPlayer targetCopy)
 		{
 			var buybackPlayer = (BuybackPlayer)targetCopy;
+			buybackPlayer.BuybackCost = BuybackCost;
 			buybackPlayer.BuybackCooldown = BuybackCooldown;
 			buybackPlayer.JustBoughtBack = JustBoughtBack;
-			buybackPlayer.BuybackPlaySound = BuybackPlaySound;
 			buybackPlayer.Player.respawnTimer = Player.respawnTimer;
 		}
 
 		public override void SendClientChanges(ModPlayer clientPlayer)
 		{
 			var buybackPlayer = (BuybackPlayer)clientPlayer;
+			if (BuybackCost != buybackPlayer.BuybackCost)
+				base.SyncPlayer(-1, Main.myPlayer, false);
 			if (BuybackCooldown != buybackPlayer.BuybackCooldown)
 				base.SyncPlayer(-1, Main.myPlayer, false);
 			if (JustBoughtBack != buybackPlayer.JustBoughtBack)
-				base.SyncPlayer(-1, Main.myPlayer, false);
-			if (BuybackPlaySound != buybackPlayer.BuybackPlaySound)
 				base.SyncPlayer(-1, Main.myPlayer, false);
 			if (Player.respawnTimer != buybackPlayer.Player.respawnTimer)
 				base.SyncPlayer(-1, Main.myPlayer, false);
@@ -131,16 +129,16 @@ namespace Buyback
 
 		public override void SaveData(TagCompound tag)
 		{
+			tag["buyback-cost"] = BuybackCost;
 			tag["buyback-cooldown"] = BuybackCooldown;
 			tag["just-bought-back"] = JustBoughtBack;
-			tag["buyback-play-sound"] = BuybackPlaySound;
 		}
 
 		public override void LoadData(TagCompound tag)
 		{
+			BuybackCost = tag.GetLong("buyback-cost");
 			BuybackCooldown = tag.GetInt("buyback-cooldown");
 			JustBoughtBack = tag.GetBool("just-bought-back");
-			BuybackPlaySound = tag.GetBool("buyback-play-sound");
 		}
 	}
 }

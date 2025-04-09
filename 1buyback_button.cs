@@ -1,4 +1,5 @@
 ﻿using System;
+using Buyback.Content.Buffs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -14,6 +15,7 @@ using Terraria.UI.Chat;
 
 namespace Buyback
 {
+	[Autoload(Side = ModSide.Both)]
 	internal class FightState : UIState, ILocalizedModType, ILoadable
 	{
 		private UIText _text;
@@ -32,29 +34,50 @@ namespace Buyback
 
 		public string FullName => $"{Mod?.Name ?? "Terraria"}/{Name}";
 
+		private long _buybackCost = Item.buyPrice(silver: 200);
+		private int _buybackCooldown;
+		public bool CanBuyback => _buybackCooldown <= 0 &&
+				Main.LocalPlayer.CanAfford(_buybackCost) &&
+				Main.LocalPlayer.dead;
+		public string Reason
+		{
+			get
+			{
+				if (_buybackCooldown > 0)
+				{
+					var time = TimeSpan.FromSeconds(_buybackCooldown / 60d);
+					return $"{time.Minutes:0}:{time.Seconds:00}";
+				}
+				return $"{_buybackCost / 10000}";
+			}
+		}
+
 		public override void Update(GameTime gameTime)
 		{
 			_parent.Left.Set(Main.screenWidth / 2f + 55f, 0.0f);
 			_parent.Top.Set(Main.screenHeight / 2f + 155f, 0.0f);
 
-			if (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown > 0)
+			_buybackCooldown = Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown;
+			_buybackCost = Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost;
+			
+			_text.TextColor = Color.Red;
+			if (_buybackCooldown > 0)
 			{
-				var time = TimeSpan.FromSeconds(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown / 60d);
-				_text.SetText(BuybackCooldown.Format($"{time.Minutes:0}:{time.Seconds:00}"));
-				_text.TextColor = Color.Red;
+				_text.SetText(BuybackCooldown.Format(Reason));
 				_coinImage.SetImage(TextureAssets.Item[ItemID.None]);
-			}
-			else if(!Main.LocalPlayer.CanAfford(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost))
-			{
-				_text.SetText(BuybackCooldown.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
-				_text.TextColor = Color.Red;
-				_coinImage.Left.Set(205, 0f);
-				_coinImage.SetImage(TextureAssets.Item[ItemID.GoldCoin]);
 			}
 			else
 			{
-				_text.SetText(BuybackCost.Format(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost / 10000));
-				_text.TextColor = Color.Gold;
+				if (!Main.LocalPlayer.CanAfford(_buybackCost))
+				{
+					_text.SetText(BuybackCooldown.Format(Reason));
+					_coinImage.Left.Set(205, 0f);
+				}
+				else
+				{
+					_text.SetText(BuybackCost.Format(Reason));
+					_text.TextColor = Color.Gold;
+				}
 				_coinImage.SetImage(TextureAssets.Item[ItemID.GoldCoin]);
 			}
 			_parent.Recalculate();
@@ -72,9 +95,10 @@ namespace Buyback
 			_parent.BackgroundColor = new Color(41, 49, 51, 200);
 			_parent.BorderColor = new Color(0, 0, 0, 0);
 
-			_parent.OnLeftClick += OnButtonClick;
+			_parent.OnLeftClick += OnLeftClick;
+			_parent.OnRightClick += OnRightClick;
 
-			_text = new UIText("Buyback: ");
+			_text = new UIText("BUYBACK: ");
 			_text.Width.Set(240f, 0f);
 			_text.Height.Set(55f, 0f);
 			_text.Top.Set(0.0f, 0.2f);
@@ -92,44 +116,35 @@ namespace Buyback
 			Append(_parent);
 		}
 
-		private void OnButtonClick(UIMouseEvent evt, UIElement listeningElement)
+		private new void OnRightClick(UIMouseEvent evt, UIElement listeningElement)
 		{
-			if (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown > 0 ||
-			    !Main.LocalPlayer.CanAfford(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost) ||
-			    !Main.LocalPlayer.dead)
+			string g = _buybackCooldown > 0 ? "" : " Gold";
+			if (CanBuyback)
+				ChatHelper.SendChatMessageFromClient(new(BuybackCost.Format(Reason) + g));
+			else
+				ChatHelper.SendChatMessageFromClient(new(BuybackCooldown.Format(Reason) + g));
+		}
+
+		private new void OnLeftClick(UIMouseEvent evt, UIElement listeningElement)
+		{
+			if (!CanBuyback)
 			{
 				//Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown = 1;// Скип для тестов
 				return;
 			}
 
-			Main.LocalPlayer.BuyItem(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost);
+			Main.LocalPlayer.PayCurrency(Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCost);
 			Main.LocalPlayer.respawnTimer = 1;
 			Main.LocalPlayer.statMana = Main.LocalPlayer.statManaMax2;
 
 			Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown = 18005;
 			Main.LocalPlayer.GetModPlayer<BuybackPlayer>().JustBoughtBack = true;
 
-			if(Main.netMode == NetmodeID.SinglePlayer)
-			{
-				SoundStyle soundStyle = new("Buyback/buyback")
-				{
-					Type = SoundType.Sound,
-					MaxInstances = 100,
-					SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
-					Volume = 1.4f
-				};
-				SoundEngine.PlaySound(in soundStyle, Main.LocalPlayer.GetModPlayer<BuybackPlayer>().RespawnPosition);
+			if (Main.netMode == NetmodeID.SinglePlayer)
 				Main.NewText(JustBoughtBackMessage.ToNetworkText(Main.LocalPlayer.name), Color.Gold);
-			}
 			else
 			{
 				ModPacket packet = Mod.GetPacket();
-				packet.Write((byte)0);
-				packet.Send();
-				foreach (var p in Main.player)
-					if (p.active)
-						p.GetModPlayer<BuybackPlayer>().BuybackPlaySound = true;
-				packet = Mod.GetPacket();
 				packet.Write((byte)1);
 				packet.Send();
 			}

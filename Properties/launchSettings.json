@@ -10,7 +10,9 @@
       "commandName": "Executable",
       "commandLineArgs": "$(tMLServerPath)",
       "executablePath": "$(DotNetName)",
-      "workingDirectory": "$(tMLSteamPath)"
+      "workingDirectory": "$(tMLSteamPath)",
+      "remoteDebugEnabled": false,
+      "remoteDebugMachine": "RPG512ServerG:7779"
     }
   }
 }

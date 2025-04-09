@@ -3,4 +3,6 @@ author = Boshan4ik, RPG512
 hideCode = true
 hideResources = false
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, Old\*
-version = 2.2.9
+version = 2.5.9.5
+sortAfter = ShorterRespawn, ShorterRespawn, Fargowiltas, FargowiltasSouls, Luminance, CatalystMod, CalamityModMusic, CalamityMod, InfernumMode, SubworldLibrary
+homepage = https://rpg512server.keenetic.link/
