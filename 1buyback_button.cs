@@ -39,21 +39,12 @@ namespace Buyback
 		public bool CanBuyback => _buybackCooldown <= 0 &&
 				Main.LocalPlayer.CanAfford(_buybackCost) &&
 				Main.LocalPlayer.dead;
-		public string Reason
-		{
-			get
-			{
-				if (_buybackCooldown > 0)
-				{
-					var time = TimeSpan.FromSeconds(_buybackCooldown / 60d);
-					return $"{time.Minutes:0}:{time.Seconds:00}";
-				}
-				return $"{_buybackCost / 10000}";
-			}
-		}
+		public static string Reason => Main.LocalPlayer.GetModPlayer<BuybackPlayer>().Reason;
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!Main.LocalPlayer.dead)
+				return;
 			_parent.Left.Set(Main.screenWidth / 2f + 55f, 0.0f);
 			_parent.Top.Set(Main.screenHeight / 2f + 155f, 0.0f);
 
@@ -118,7 +109,9 @@ namespace Buyback
 
 		private new void OnRightClick(UIMouseEvent evt, UIElement listeningElement)
 		{
-			string g = _buybackCooldown > 0 ? "" : " Gold";
+			if (!Main.LocalPlayer.dead)
+				return;
+			string g = _buybackCooldown > 0 ? "" : " " + new Item(ItemID.GoldCoin).Name;
 			if (CanBuyback)
 				ChatHelper.SendChatMessageFromClient(new(BuybackCost.Format(Reason) + g));
 			else

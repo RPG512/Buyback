@@ -28,11 +28,11 @@ namespace Buyback
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
 		{
 			int index = layers.FindIndex(
-				(layer => layer.Name.Equals("Vanilla: Mouse Text")));
+				layer => layer.Name.Equals("Vanilla: Mouse Text"));
 			if (!Main.LocalPlayer.dead || index == -1)
 				return;
 			layers.Insert(index,
-				new LegacyGameInterfaceLayer("DOTA2Mod: BuybackButton",
+				new LegacyGameInterfaceLayer("Buyback: BuybackButton",
 					() =>
 					{
 						_fightState.Draw(Main.spriteBatch, new GameTime());

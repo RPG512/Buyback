@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Chat;
@@ -9,29 +10,11 @@ namespace Buyback.Content.Buffs
 {
     public class NoBuybackBuff : ModBuff
     {
-        private long _buybackCost = Item.buyPrice(silver: 200);
-        private int _buybackCooldown;
-        public string Reason 
-        { 
-            get
-            {
-                if (_buybackCooldown > 0)
-                {
-                    var time = TimeSpan.FromSeconds(_buybackCooldown / 60d);
-                    return $"{time.Minutes:0}:{time.Seconds:00}";
-                }
-                return $"{_buybackCost / 10000} Gold";
-            }
-        }
+        static string Reason => Main.LocalPlayer.GetModPlayer<BuybackPlayer>().Reason + (Main.LocalPlayer.GetModPlayer<BuybackPlayer>().BuybackCooldown > 0 ? "" : " " + new Item(ItemID.GoldCoin).Name);
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
             Main.buffNoTimeDisplay[Type] = true;
-        }
-        public override void Update(Player player, ref int buffIndex)
-        {
-            _buybackCost = player.GetModPlayer<BuybackPlayer>().BuybackCost;
-            _buybackCooldown = player.GetModPlayer<BuybackPlayer>().BuybackCooldown;
         }
 
         public override void ModifyBuffText(ref string buffName, ref string tip, ref int rare)

@@ -19,8 +19,21 @@ namespace Buyback
 		public long BuybackCost = Item.buyPrice(silver: 200);
 		public int BuybackCooldown = 1200;
 		public bool JustBoughtBack;
+        public string Reason
+        {
+            get
+            {
+                if (BuybackCooldown > 0)
+                {
+                    var time = TimeSpan.FromSeconds(BuybackCooldown / 60d);
+                    return $"{time.Minutes:0}:{time.Seconds:00}";
+                }
+				ProccessBuybackCost();
+                return $"{BuybackCost / 10000}";
+            }
+        }
 
-		public Vector2 RespawnPosition
+        public Vector2 RespawnPosition
 		{
 			get
 			{
@@ -56,15 +69,28 @@ namespace Buyback
 			int hitDirection,
 			bool pvp,
 			PlayerDeathReason damageSource)
-		{
-			if (Player.ConsumeItem(ModContent.ItemType<AegisOfTheImmortal>()))
-				return;
+        {
+            if (Player.ConsumeItem(ModContent.ItemType<AegisOfTheImmortal>()))
+                return;
 
+            ProccessBuybackCost();
+
+            if (JustBoughtBack)
+            {
+                Player.respawnTimer = 3600;
+                JustBoughtBack = false;
+            }
+            //else
+            //	Player.respawnTimer = 1800;
+        }
+
+		private void ProccessBuybackCost()
+		{
 			long netWorth = Player.inventory.Sum(i => i.value * i.stack) +
-							 Player.bank.item.Sum(i => i.value * i.stack) +
-							 Player.bank2.item.Sum(i => i.value * i.stack) +
-							 Player.bank3.item.Sum(i => i.value * i.stack) +
-							 Player.bank4.item.Sum(i => i.value * i.stack);
+										 Player.bank.item.Sum(i => i.value * i.stack) +
+										 Player.bank2.item.Sum(i => i.value * i.stack) +
+										 Player.bank3.item.Sum(i => i.value * i.stack) +
+										 Player.bank4.item.Sum(i => i.value * i.stack);
 
 			long dividedNetWorth = netWorth / 13 / ModContent.GetInstance<BuybackModConfig>().NetWorthDivider;
 
@@ -72,16 +98,9 @@ namespace Buyback
 
 			if (BuybackCost < 20000)
 				BuybackCost = long.MaxValue - 7;
-
-			if (JustBoughtBack)
-			{
-				Player.respawnTimer = 3600;
-				JustBoughtBack = false;
-			}
-			//else
-			//	Player.respawnTimer = 1800;
 		}
-		public override void OnRespawn()
+
+        public override void OnRespawn()
 		{
 			if (JustBoughtBack)
 				//SoundEngine.PlaySound(in Buyback.BuybackSound);
